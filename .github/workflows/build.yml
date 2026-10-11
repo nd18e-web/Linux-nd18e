@@ -17,15 +17,9 @@ jobs:
           sudo docker image prune --all --force || true
           df -h /
 
-      - name: Zainstaluj klucze Debiana
+      - name: Zbuduj ISO w Debianie
         run: |
-          sudo apt-get update
-          sudo apt-get install -y debian-archive-keyring
-
-      - name: Zbuduj ISO
-        run: |
-          chmod +x build_nd18e_linux.sh
-          ./build_nd18e_linux.sh
+          docker run --rm --privileged -v "$PWD":/work -w /work debian:bookworm bash -c "apt-get update && apt-get install -y sudo && chmod +x build_nd18e_linux.sh && ./build_nd18e_linux.sh"
 
       - name: Wyslij ISO do pobrania
         uses: actions/upload-artifact@v4
@@ -34,3 +28,4 @@ jobs:
           path: ND18E_Linux.iso
           compression-level: 0
           retention-days: 7
+
