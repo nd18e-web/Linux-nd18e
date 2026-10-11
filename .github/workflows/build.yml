@@ -1,0 +1,36 @@
+name: Build ND18E Linux
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Pobierz pliki
+        uses: actions/checkout@v4
+
+      - name: Zwolnij miejsce na dysku
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker image prune --all --force || true
+          df -h /
+
+      - name: Zainstaluj klucze Debiana
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debian-archive-keyring
+
+      - name: Zbuduj ISO
+        run: |
+          chmod +x build_nd18e_linux.sh
+          ./build_nd18e_linux.sh
+
+      - name: Wyslij ISO do pobrania
+        uses: actions/upload-artifact@v4
+        with:
+          name: ND18E_Linux_ISO
+          path: ND18E_Linux.iso
+          compression-level: 0
+          retention-days: 7
